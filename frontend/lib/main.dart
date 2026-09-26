@@ -1,61 +1,61 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+    return HomePage();
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _typedCharacters = 0;
-  final TextEditingController typingController = TextEditingController();
+class _HomePageState extends State<HomePage> {
+  int correctChars = 0;
+  static final String _targetChars =
+      "The quick brown fox jumps over the lazy dog";
+  static final List<String> chars = _targetChars.split('');
+  final TextEditingController charContrller = TextEditingController();
 
-  void typedCharacters() {
+  void correctCharchters() {
+    final typed = charContrller.text;
+    int correct = 0;
+    for (int i = 0; i < _targetChars.length && i < typed.length; i++) {
+      if (typed[i] == chars[i]) {
+        correct++;
+      }
+    }
     setState(() {
-      _typedCharacters = typingController.text.length;
+      correctChars = correct;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have written this amount of words'),
-            Text(
-              'Characters: $_typedCharacters',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            
-            TextField(
-              controller: typingController,
-              onChanged: (value) => typedCharacters(),
-            ),
-          ],
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: .center,
+            children: [
+              Text(_targetChars),
+              Text("$correctChars"),
+              TextField(
+                controller: charContrller,
+                onChanged: (_) => correctCharchters(),
+              ),
+            ],
+          ),
         ),
       ),
     );
