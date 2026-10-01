@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomePage();
+    return MaterialApp(home: HomePage());
   }
 }
 
@@ -25,37 +25,45 @@ class _HomePageState extends State<HomePage> {
   static final String _targetChars =
       "The quick brown fox jumps over the lazy dog";
   static final List<String> chars = _targetChars.split('');
-  final TextEditingController charContrller = TextEditingController();
+  final TextEditingController charController = TextEditingController();
 
-  void correctCharchters() {
-    final typed = charContrller.text;
-    int correct = 0;
-    for (int i = 0; i < _targetChars.length && i < typed.length; i++) {
-      if (typed[i] == chars[i]) {
-        correct++;
+  List<TextSpan> _buildCharacterSpan() {
+    final spans = <TextSpan>[];
+    final typed = charController.text;
+
+    for (int i = 0; i < _targetChars.length; i++) {
+      TextStyle style;
+
+      if (i >= typed.length) {
+        style = TextStyle();
+      } else if (typed[i] == chars[i]) {
+        style = const TextStyle(color: Colors.green);
+      } else {
+        style = const TextStyle(color: Colors.redAccent);
       }
+      spans.add(TextSpan(text: chars[i], style: style));
     }
-    setState(() {
-      correctChars = correct;
-    });
+    return spans;
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              Text(_targetChars),
-              Text("$correctChars"),
-              TextField(
-                controller: charContrller,
-                onChanged: (_) => correctCharchters(),
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: TextStyle(fontSize: 24, color: Colors.black),
+                children: _buildCharacterSpan(),
               ),
-            ],
-          ),
+            ),
+            Text("$correctChars"),
+            TextField(controller: charController, onChanged: (_) => setState(() {
+              
+            }),)
+          ],
         ),
       ),
     );
