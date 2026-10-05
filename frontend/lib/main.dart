@@ -25,8 +25,27 @@ class _HomePageState extends State<HomePage> {
   static final String _targetChars =
       "The quick brown fox jumps over the lazy dog";
   static final List<String> chars = _targetChars.split('');
-
+  bool isFinished = false;
+  double accuracy = 0;
   final TextEditingController charController = TextEditingController();
+  void updateTypingProgress() {
+    final typed = charController.text;
+    int correct = 0;
+
+    for (int i = 0; i < typed.length && i < _targetChars.length; i++) {
+      if (chars[i] == typed[i]) {
+        correct++;
+      }
+    }
+
+    setState(() {
+      correctChars = correct;
+      if (typed.length == _targetChars.length) {
+        isFinished = true;
+        accuracy = correctChars / typed.length * 100;
+      }
+    });
+  }
 
   List<TextSpan> _buildCharacterSpan() {
     final spans = <TextSpan>[];
@@ -74,10 +93,12 @@ class _HomePageState extends State<HomePage> {
                 children: _buildCharacterSpan(),
               ),
             ),
-            Text("$correctChars"),
+            Text(
+              "Correct characters: $correctChars \n Typed characters: ${charController.text.length} accuracy: ${accuracy.toStringAsFixed(1)}%   ${isFinished ? "\n Finshed" : ""} ",
+            ),
             TextField(
               controller: charController,
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => updateTypingProgress(),
             ),
           ],
         ),
