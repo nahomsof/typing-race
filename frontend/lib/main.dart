@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 void main() {
   runApp(MyApp());
@@ -21,15 +22,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Timer? timer;
+  int elapsedSecond = 0;
+
   int correctChars = 0;
   static final String _targetChars =
       "The quick brown fox jumps over the lazy dog";
   static final List<String> chars = _targetChars.split('');
   bool isFinished = false;
+  double wpm = 0;
   double accuracy = 0;
+
   final TextEditingController charController = TextEditingController();
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
+      setState(() {
+        elapsedSecond++;
+      });
+    });
+  }
+
   void updateTypingProgress() {
     final typed = charController.text;
+
     int correct = 0;
 
     for (int i = 0; i < typed.length && i < _targetChars.length; i++) {
@@ -38,11 +53,24 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+    if (typed.length == 1 && timer == null) {
+      startTimer();
+    }
+
+    if (typed.length == _targetChars.length) {
+      isFinished = true;
+      if (elapsedSecond > 0) {
+        wpm = correctChars / 5 / (elapsedSecond / 60);
+      }
+      timer?.cancel();
+      timer = null;
+    }
+
     setState(() {
       correctChars = correct;
       if (typed.length == _targetChars.length) {
         isFinished = true;
-        accuracy = correctChars / typed.length * 100;
+        accuracy = correct / typed.length * 100;
       }
     });
   }
@@ -77,6 +105,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     charController.dispose();
+    timer?.cancel();
     super.dispose();
   }
 
@@ -87,6 +116,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
+            Text("Time: ${elapsedSecond}s"),
             RichText(
               text: TextSpan(
                 style: TextStyle(fontSize: 24, color: Colors.purple),
@@ -94,7 +124,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Text(
-              "Correct characters: $correctChars \n Typed characters: ${charController.text.length} accuracy: ${accuracy.toStringAsFixed(1)}%   ${isFinished ? "\n Finshed" : ""} ",
+              "Correct characters: $correctChars \n Typed characters: ${charController.text.length} accuracy: ${accuracy.toStringAsFixed(1)}%   ${isFinished ? "\n Finshed" : ""} ${wpm == 0 ? "" : wpm.toStringAsFixed(1)} ",
             ),
             TextField(
               controller: charController,
