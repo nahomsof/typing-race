@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   bool isFinished = false;
   double wpm = 0;
   double accuracy = 0;
+  int incorrect = 0;
 
   final TextEditingController charController = TextEditingController();
   void startTimer() {
@@ -39,6 +40,21 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         elapsedSecond++;
       });
+    });
+  }
+
+  void resetRace() {
+    timer?.cancel();
+    charController.clear();
+    timer = null;
+
+    setState(() {
+      elapsedSecond = 0;
+      wpm = 0;
+      correctChars = 0;
+      accuracy = 0;
+      isFinished = false;
+      incorrect = 0;
     });
   }
 
@@ -50,6 +66,8 @@ class _HomePageState extends State<HomePage> {
     for (int i = 0; i < typed.length && i < _targetChars.length; i++) {
       if (chars[i] == typed[i]) {
         correct++;
+      } else {
+        incorrect++;
       }
     }
 
@@ -70,7 +88,7 @@ class _HomePageState extends State<HomePage> {
       correctChars = correct;
       if (typed.length == _targetChars.length) {
         isFinished = true;
-        accuracy = correct / typed.length * 100;
+        accuracy = ((chars.length - incorrect) / typed.length) * 100;
       }
     });
   }
@@ -124,12 +142,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Text(
-              "Correct characters: $correctChars \n Typed characters: ${charController.text.length} accuracy: ${accuracy.toStringAsFixed(1)}%   ${isFinished ? "\n Finshed" : ""} ${wpm == 0 ? "" : wpm.toStringAsFixed(1)} ",
+              "Correct characters: $correctChars \nTyped characters: ${charController.text.length} ${"\nAccuracy: ${accuracy.toStringAsFixed(1)}"}% ${wpm == 0 ? "" : '\nWPM: ${wpm.toStringAsFixed(1)}'} ",
             ),
             TextField(
               controller: charController,
               onChanged: (_) => updateTypingProgress(),
             ),
+            ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
           ],
         ),
       ),
