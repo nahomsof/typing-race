@@ -33,6 +33,9 @@ class _HomePageState extends State<HomePage> {
   double wpm = 0;
   double accuracy = 0;
   int incorrect = 0;
+  int totalCorrect = 0;
+  int totalTyped = 0;
+  String _previousText = "";
 
   final TextEditingController charController = TextEditingController();
   void startTimer() {
@@ -40,6 +43,63 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         elapsedSecond++;
       });
+    });
+  }
+
+  void updateProgress() {
+    final typed = charController.text;
+
+    if (typed.length > _previousText.length) {
+      for (int i = _previousText.length; i < typed.length; i++) {
+        if (i < _targetChars.length) {
+          totalTyped++;
+          if (typed[i] == chars[i]) {
+            totalCorrect++;
+          }
+        }
+      }
+    }
+    _previousText = typed;
+
+    int correct = 0;
+    int wrong = 0;
+
+    for (int i = 0; i < typed.length && i < _targetChars.length; i++) {
+      if (typed[i] == chars[i]) {
+        correct++;
+      } else {
+        wrong++;
+      }
+    }
+
+    if (typed.length == 1 && timer == null) startTimer();
+    if (typed.isEmpty && timer != null) {
+      timer?.cancel();
+      timer = null;
+    }
+
+    final finished = typed.length == _targetChars.length;
+    if (finished) {
+      timer?.cancel();
+      timer = null;
+    }
+
+    final historicalAccuracy = totalTyped == 0
+        ? 100.0
+        : (totalCorrect / totalTyped) * 100;
+
+    final wpmValue = elapsedSecond > 0 && finished
+        ? (correct / 5) / (elapsedSecond / 60)
+        : 0.0;
+
+    setState(() {
+      correctChars = correct;
+      incorrect = wrong;
+      if (finished) {
+        accuracy = historicalAccuracy;
+        wpm = wpmValue;
+      }
+      isFinished = finished;
     });
   }
 
@@ -52,44 +112,14 @@ class _HomePageState extends State<HomePage> {
       elapsedSecond = 0;
       wpm = 0;
       correctChars = 0;
-      accuracy = 0;
+      accuracy = 100; // start at 100% (nothing typed yet)
       isFinished = false;
       incorrect = 0;
-    });
-  }
 
-  void updateTypingProgress() {
-    final typed = charController.text;
-
-    int correct = 0;
-
-    for (int i = 0; i < typed.length && i < _targetChars.length; i++) {
-      if (chars[i] == typed[i]) {
-        correct++;
-      } else {
-        incorrect++;
-      }
-    }
-
-    if (typed.length == 1 && timer == null) {
-      startTimer();
-    }
-
-    if (typed.length == _targetChars.length) {
-      isFinished = true;
-      if (elapsedSecond > 0) {
-        wpm = correctChars / 5 / (elapsedSecond / 60);
-      }
-      timer?.cancel();
-      timer = null;
-    }
-
-    setState(() {
-      correctChars = correct;
-      if (typed.length == _targetChars.length) {
-        isFinished = true;
-        accuracy = ((chars.length - incorrect) / typed.length) * 100;
-      }
+      // Reset historical tracking
+      totalTyped = 0;
+      totalCorrect = 0;
+      _previousText = "";
     });
   }
 
@@ -146,7 +176,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: charController,
-              onChanged: (_) => updateTypingProgress(),
+              onChanged: (_) => updateProgress(),
             ),
             ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
           ],
