@@ -133,6 +133,7 @@ class _HomePageState extends State<HomePage> {
 
       if (i == currentIndex) {
         style = const TextStyle(
+          
           color: Colors.blue,
           decoration: TextDecoration.underline,
         );
@@ -176,6 +177,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextField(
               controller: charController,
+              readOnly: isFinished,
               onChanged: (_) => updateProgress(),
             ),
             ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
