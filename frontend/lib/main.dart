@@ -80,6 +80,13 @@ class _HomePageState extends State<HomePage> {
 
     final finished = typed.length == _targetChars.length;
     if (finished) {
+      if (!isFinished) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            displayDialog(context);
+          }
+        });
+      }
       timer?.cancel();
       timer = null;
     }
@@ -112,11 +119,10 @@ class _HomePageState extends State<HomePage> {
       elapsedSecond = 0;
       wpm = 0;
       correctChars = 0;
-      accuracy = 100; // start at 100% (nothing typed yet)
+      accuracy = 100;
       isFinished = false;
       incorrect = 0;
 
-      // Reset historical tracking
       totalTyped = 0;
       totalCorrect = 0;
       _previousText = "";
@@ -133,7 +139,6 @@ class _HomePageState extends State<HomePage> {
 
       if (i == currentIndex) {
         style = const TextStyle(
-          
           color: Colors.blue,
           decoration: TextDecoration.underline,
         );
@@ -149,6 +154,26 @@ class _HomePageState extends State<HomePage> {
       spans.add(TextSpan(text: chars[i], style: style));
     }
     return spans;
+  }
+
+  void displayDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Race info"),
+          content: Text(
+            "Correct characters: $correctChars \nTyped characters: ${charController.text.length} ${"\nAccuracy: ${accuracy.toStringAsFixed(1)}"}% ${wpm == 0 ? "" : '\nWPM: ${wpm.toStringAsFixed(1)}'} ",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("Ok"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -172,9 +197,7 @@ class _HomePageState extends State<HomePage> {
                 children: _buildCharacterSpan(),
               ),
             ),
-            Text(
-              "Correct characters: $correctChars \nTyped characters: ${charController.text.length} ${"\nAccuracy: ${accuracy.toStringAsFixed(1)}"}% ${wpm == 0 ? "" : '\nWPM: ${wpm.toStringAsFixed(1)}'} ",
-            ),
+
             TextField(
               controller: charController,
               readOnly: isFinished,
