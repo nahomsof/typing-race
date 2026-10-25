@@ -173,7 +173,10 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Text(
                         "TIME",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       Text(
                         "${elapsedSecond}s",
@@ -189,10 +192,13 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Text(
                         "WPM",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       Text(
-                        "${wpm.toStringAsFixed(1)}%",
+                        wpm.toStringAsFixed(1),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 24,
@@ -205,10 +211,13 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const Text(
                         "ACCURACY",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       Text(
-                        accuracy.toStringAsFixed(1),
+                       "${accuracy.toStringAsFixed(1)}%",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 24,
@@ -219,10 +228,18 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            RichText(
-              text: TextSpan(
-                style: TextStyle(fontSize: 24, color: Colors.purple),
-                children: _buildCharacterSpan(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 900),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 24, color: Colors.black),
+                    children: _buildCharacterSpan(),
+                  ),
+                ),
               ),
             ),
 
