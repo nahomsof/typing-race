@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: HomePage());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
   }
 }
 
@@ -80,13 +80,6 @@ class _HomePageState extends State<HomePage> {
 
     final finished = typed.length == _targetChars.length;
     if (finished) {
-      if (!isFinished) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            displayDialog(context);
-          }
-        });
-      }
       timer?.cancel();
       timer = null;
     }
@@ -156,26 +149,6 @@ class _HomePageState extends State<HomePage> {
     return spans;
   }
 
-  void displayDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Race info"),
-          content: Text(
-            "Correct characters: $correctChars \nTyped characters: ${charController.text.length} ${"\nAccuracy: ${accuracy.toStringAsFixed(1)}"}% ${wpm == 0 ? "" : '\nWPM: ${wpm.toStringAsFixed(1)}'} ",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text("Ok"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   void dispose() {
     charController.dispose();
@@ -186,11 +159,66 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("Typing Race"), centerTitle: true),
       body: Center(
         child: Column(
           mainAxisAlignment: .center,
           children: [
-            Text("Time: ${elapsedSecond}s"),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      const Text(
+                        "TIME",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "${elapsedSecond}s",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Column(
+                    children: [
+                      const Text(
+                        "WPM",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "${wpm.toStringAsFixed(1)}%",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Column(
+                    children: [
+                      const Text(
+                        "ACCURACY",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        accuracy.toStringAsFixed(1),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             RichText(
               text: TextSpan(
                 style: TextStyle(fontSize: 24, color: Colors.purple),
@@ -198,10 +226,20 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            TextField(
-              controller: charController,
-              readOnly: isFinished,
-              onChanged: (_) => updateProgress(),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 100,
+                vertical: 30,
+              ),
+              child: TextField(
+                controller: charController,
+                readOnly: isFinished,
+                onChanged: (_) => updateProgress(),
+                decoration: const InputDecoration(
+                  hintText: "Start typing here...",
+                  border: OutlineInputBorder(),
+                ),
+              ),
             ),
             ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
           ],
