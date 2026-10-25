@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:frontend/widget/race_stats.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -164,69 +166,10 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: .center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      const Text(
-                        "TIME",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        "${elapsedSecond}s",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Column(
-                    children: [
-                      const Text(
-                        "WPM",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        wpm.toStringAsFixed(1),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Column(
-                    children: [
-                      const Text(
-                        "ACCURACY",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                       "${accuracy.toStringAsFixed(1)}%",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            RaceStats(
+              accuracy: accuracy,
+              elapsedSecond: elapsedSecond,
+              wpm: wpm,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
