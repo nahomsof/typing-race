@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   String _previousText = "";
 
   final TextEditingController charController = TextEditingController();
+  final FocusNode typingFocusNode = FocusNode();
   void startTimer() {
     timer = Timer.periodic(Duration(seconds: 1), (_) {
       setState(() {
@@ -152,8 +153,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      typingFocusNode.requestFocus();
+    });
+  }
+
+  @override
   void dispose() {
     charController.dispose();
+    typingFocusNode.dispose();
     timer?.cancel();
     super.dispose();
   }
@@ -163,46 +174,52 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Typing Race"), centerTitle: true),
       body: Center(
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            RaceStats(
-              accuracy: accuracy,
-              elapsedSecond: elapsedSecond,
-              wpm: wpm,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 900),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: TextStyle(fontSize: 24, color: Colors.black),
-                    children: _buildCharacterSpan(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: .center,
+            children: [
+              RaceStats(
+                accuracy: accuracy,
+                elapsedSecond: elapsedSecond,
+                wpm: wpm,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+          
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 900),
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: TextStyle(fontSize: 24, color: Colors.black),
+                      children: _buildCharacterSpan(),
+                    ),
                   ),
                 ),
               ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 100,
-                vertical: 30,
-              ),
-              child: TextField(
-                controller: charController,
-                readOnly: isFinished,
-                onChanged: (_) => updateProgress(),
-                decoration: const InputDecoration(
-                  hintText: "Start typing here...",
-                  border: OutlineInputBorder(),
+          
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 100,
+                  vertical: 30,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 700),
+                  child: TextField(
+                    controller: charController,
+                    focusNode: typingFocusNode,
+                    readOnly: isFinished,
+                    onChanged: (_) => updateProgress(),
+                    decoration: const InputDecoration(
+                      hintText: "Start typing here...",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ),
               ),
-            ),
-            ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
-          ],
+              ElevatedButton(onPressed: resetRace, child: Text("Reset race")),
+            ],
+          ),
         ),
       ),
     );
